@@ -1,0 +1,93 @@
+-- Pengenalan Dependency Injection
+        1. Dalam pembuatan perangkat lunak, Dependency Injection merupakan sebuah teknik dimana sebuah object menerima
+           object lain yang dibutuhkan (dependencies) ketika pembuatan object itu sendiri
+        2. Biasanya object yang menerima dependencies disebut client, proses mengirim dependencies ke object tersebut
+           biasa dibilang inject
+        3. Dependency Injection sebenarnya sudah sering sekali kita lakukan, misal membuat object Controller yang
+           membutuhkan dependencies object Service, atau membuat object Service yang membutuhkan dependencies object Repository
+
+        -- Function Sebagai Constructor
+                1. Dalam bahasa pemrograman berorientasi object, ada istilah yang bernama Constructor, yaitu sebuah function
+                   yang digunakan ketika sebuah object dibuat
+                2. Di Go-Lang, biasanya kita juga membuat sebuah function untuk membuat object, dan ini mirip seperti Constructor tugasnya,
+                   yaitu membuat object baru
+                3. Biasanya kita akan membuat object dengan memanggil function Constructor tersebut, lalu mengirimkan
+                   dependencies yang dibutuhkan pada function Constructor tersebut
+                4. Cara seperti ini mudah dilakukan ketika kode program aplikasi kita tidak terlalu besar
+                5. Namun saat kode program aplikasi kita semakin besar, akan semakin sulit melakukan hal ini, terutama
+                   kita harus tahu urutan object mana yang harus dibuat terlebih dahulu
+                6. Oleh karena ini, proses Dependency Injection sebenarnya bisa kita permudah dengan memanfaatkan library
+
+        -- Library Dependency Injection
+                1. Banyak sekali library Dependency Injection yang bisa kita gunakan di Go-Lang, misalnya
+                       https://github.com/google/wire
+                       https://github.com/uber-go/fx
+                       https://github.com/golobby/container
+                       Dan lain-lain
+
+                -- Google Wire
+                        1. Pada kelas ini, kita akan menggunakan Google Wire sebagai Dependency Injection library nya
+                        2. Salah satu kenapa Google Wire menjadi pilihan, karena saat ini Google Wire adalah library
+                           paling populer untuk melakukan Dependency Injection di Go-Lang
+                        3. Selain itu, Google Wire merupakan library Dependency Injection yang berbasis compile,
+                           artinya kodenya akan di generate, bukan menggunakan reflection
+                        4. Hal ini membuat Google Wire menjadi cepat, karena hasil kompilasi nya adalah kode yang sudah
+                           di generate melakukan Dependency Injection, tanpa perlu menggunakan reflection lagi
+                        5. Tambah Dependency Google Wire
+                                go get github.com/google/wire
+
+        -- Menginstall Wire
+                1. Google Wire membutuhkan aplikasi command line wire untuk melakukan auto generate kode Dependency
+                   injection ketika kita nanti membuat kode
+                2. Program ini perlu kita install manual di komputer kita dengan perintah :
+                        go install github.com/google/wire/cmd/wire@latest
+                3. Secara otomatis akan ada file binary di $GOPATH/bin/wire
+                4. Agar aplikasi command line wire tersebut bisa diakses, jangan lupa masukkan ke $PATH sistem operasi kita,
+                   seperti yang pernah kita lakukan ketika belajar setting $PATH Go-Lang di kelas Go-Lang Dasar
+
+-- Provider
+        1. Untuk melakukan Dependency Injection, kita perlu buat dalam bentuk function constructor
+        2. Dalam Google Wire, function constructor tersebut kita sebut dengan Provider
+
+-- Injector
+        1. Setelah kita membuat Provider untuk nanti kita gunakan, selanjutnya kita perlu membuat Injector
+        2. Injector sendiri adalah sebuah function constructor, namun isinya berupa konfigurasi yang kita beritahukan
+           ke Google Wire
+        3. Injector ini sendiri sebenarnya tidak akan digunakan oleh kode program kita, Injector ini adalah function
+           yang akan digunakan oleh Google Wire untuk melakukan auto generate kode Dependency Injection
+        4. Khusus ketika membuat Injector, pada file nya kita perlu tambahkan komentar penanda :
+                    go:build wireinject
+                    +build wireinject
+
+-- Dependency Injection
+        1. Setelah kita membuat Injector dan Provider, selanjutnya yang perlu kita lakukan adalah menggunakan aplikasi
+           command line Google Wire untuk melakukan auto generate kode Dependency Injection
+        2. Kita bisa menggunakan perintah ini untuk melakukan auto generate kode dependency injection :
+                wire gen namapackage
+        3. Secara otomatis aplikasi Google Wire akan mencari kode Injector di package tersebut, lalu membuat
+           file wire_gen.go yang isinya adalah kode otomatis dependency injection
+
+-- Error
+        1. Google Wire juga bisa mendeteksi jika terjadi error pada Provider kita
+        2. Jika terdapat error, secara otomatis akan mengembalikan error ketika kita melakukan dependency injection
+        3. Caranya sederhana, kita cukup buat di Provider return value kedua berupa error, dan di Injector nya juga perlu
+           kita tambahkan return value kedua berupa error
+
+-- Injector Parameter
+        1. Saat membuat Injector, kadang kita butuh parameter yang dinamis
+        2. Dengan Google Wire, kita juga bisa mengirim parameter pada Injector yang akan di generate secara otomatis
+        3. Secara otomatis jika ada Provider yang membutuhkan data dengan tipe parameter yang sama, secara otomatis data
+           di parameter akan digunakan
+
+
+
+
+
+
+
+
+
+
+
+
+
