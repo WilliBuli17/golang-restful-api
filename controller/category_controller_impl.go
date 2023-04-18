@@ -13,7 +13,7 @@ type CategoryControllerImplementation struct {
 	CategoryService service.CategoryService
 }
 
-func NewCategoryController(categoryService service.CategoryService) CategoryController {
+func NewCategoryControllerImplementation(categoryService service.CategoryService) *CategoryControllerImplementation {
 	return &CategoryControllerImplementation{
 		CategoryService: categoryService,
 	}

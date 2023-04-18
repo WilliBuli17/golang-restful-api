@@ -38,9 +38,9 @@ func setUpDB() *sql.DB {
 func setUpRouter(db *sql.DB) http.Handler {
 	validate := validator.New()
 
-	categoryRepository := repository.NewCategoryRepository()
-	categoryService := service.NewCategoryService(categoryRepository, db, validate)
-	categoryController := controller.NewCategoryController(categoryService)
+	categoryRepository := repository.NewCategoryRepositoryImplementation()
+	categoryService := service.NewCategoryServiceImplementation(categoryRepository, db, validate)
+	categoryController := controller.NewCategoryControllerImplementation(categoryService)
 
 	router := app.NewRouter(categoryController)
 
@@ -56,7 +56,7 @@ func generateData(db *sql.DB) domain.Category {
 	tx, errBegin := db.Begin()
 	helper.PanicIfError(errBegin)
 
-	categoryRepository := repository.NewCategoryRepository()
+	categoryRepository := repository.NewCategoryRepositoryImplementation()
 	category := categoryRepository.Save(context.Background(), tx, domain.Category{
 		Name: "name_test",
 	})

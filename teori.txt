@@ -79,9 +79,53 @@
         3. Secara otomatis jika ada Provider yang membutuhkan data dengan tipe parameter yang sama, secara otomatis data
            di parameter akan digunakan
 
+-- Multiple Binding
+        1. Saat melakukan dependency injection, kadang ada kasus kita membuat beberapa Provider dengan tipe yang sama
+        2. Hal ini akan membuat error proses auto generate kode dependency injection, karena Google Wire tidak mendukung
+           multiple binding dengan tipe yang sama
+        3. Pada kasus ini, kita bisa membuat tipe alias untuk multiple binding
 
+-- Provider Set
+        1. Google Wire memiliki fitur yang bernama Provider Set, fitur ini digunakan untuk melakukan grouping Provider
+        2. Provider Set sangat berguna ketika kode program kita sudah banyak, dan Providernya sudah banyak,
+           sehingga akan lebih mudah untuk dibaca ketika kita grouping data Provider nya
 
+-- Binding Interface
+        1. Dalam pembuatan aplikasi, sering sekali kita biasanya menggunakan Interface sebagai kontrak struct
+        2. Secara default, Google Wire akan menggunakan tipe data asli untuk melakukan dependency injection,
+           jadi jika terdapat parameter berupa Interface, dan tidak ada Provider yang mengembalikan Interface tersebut,
+           maka akan dianggap error
+        3. Pada kasus ini, kita bisa memberi tahu ke Google Wire, jika kita ingin melakukan binding interface,
+           yaitu memberi tahu untuk sebuah interface akan menggunakan provider dengan tipe apa
 
+-- Struct Provider
+        1. Kita juga bisa membuat Struct Provider, yaitu Struct yang bisa kita jadikan sebagai Provider
+        2. Secara otomatis Struct yang kita sebutkan akan menjadi Provider
+        3. Dan kita juga bisa melakukan dependency injection terhadap field yang terdapat didalam Struct tersebut,
+           kita cukup menyebutkan field mana yang akan di inject, atau jika ingin melakukan injection ke semua field,
+           kita bisa gunakan karakter * (bintang)
+
+-- Binding Values
+        1. Kadang ada kasus dimana kita ingin melakukan dependency injection terhadap value yang sudah ada,
+           tanpa harus membuat Provider terlebih dahulu
+        2. Untuk kasus seperti, kita bisa langsung sebutkan value dari objectnya, tanpa menggunakan Provider
+
+        -- Interface Value
+                1. Seperti di awal sudah dijelaskan, bahkan Google Wire akan melakukan dependency injection sesuai tipe
+                   data Provider nya
+                2. Pada kasus jika kita ingin menggunakan value berupa Interface, maka kita perlu melakukan Interface
+                   Binding seperti yang sudah dibahas
+                3. Atau ada cara yang lebih mudah, kita bisa binding value sekaligus menyebutkan interface yang
+                   digunakan oleh value tersebut
+
+-- Struct Field Provider
+        1. Google Wire juga mendukung pembuatan Provider dari Field sebuah Struct
+        2. Misal pada kondisi kita ingin menggunakan sebuah Field dari Struct untuk dijadikan dependency untuk Provider lain
+
+-- Cleanup Function
+        1. Jika Provider membuat object yang membutuhkan proses cleanup (pembersihan) setelah object dibuat,
+           maka pada provider kita bisa mengembalikan closure
+        2. Closure secara otomatis akan dipanggil dalam proses cleanup oleh Google Wire
 
 
 
