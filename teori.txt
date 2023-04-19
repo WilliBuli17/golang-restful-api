@@ -1,137 +1,116 @@
--- Pengenalan Dependency Injection
-        1. Dalam pembuatan perangkat lunak, Dependency Injection merupakan sebuah teknik dimana sebuah object menerima
-           object lain yang dibutuhkan (dependencies) ketika pembuatan object itu sendiri
-        2. Biasanya object yang menerima dependencies disebut client, proses mengirim dependencies ke object tersebut
-           biasa dibilang inject
-        3. Dependency Injection sebenarnya sudah sering sekali kita lakukan, misal membuat object Controller yang
-           membutuhkan dependencies object Service, atau membuat object Service yang membutuhkan dependencies object Repository
+-- Pengenalan Database Migration
+        1. Saat ini, kebanyakan aplikasi yang dibuat akan membutuhkan database
+        2. Saat aplikasi berjalan, biasanya database sudah siap digunakan, artinya table, kolom dan semua relasinya
+           sudah dibuat di awal sebelum aplikasi dijalankan
+        3. Apa yang terjadi ketika misal pada saat aplikasi sudah berjalan, kita perlu menambah fitur baru, lalu butuh
+           mengubah struktur table di database?
+        4. Biasanya kita akan mengubahnya di database langsung, lalu melakukan perubahan kode program
+        5. Hal ini mungkin terlihat sederhana, namun ketika skalanya sudah besar, dan anggota tim sudah banyak,
+           maka perubahan langsung ke database bukanlah hal sederhana lagi
+        6. Kita harus bisa melakukan tracking apa saja yang berubah, dan memastikan semua anggota tim tahu perubahannya,
+           sehingga bisa dilakukan hal yang sama di komputer masing-masing
 
-        -- Function Sebagai Constructor
-                1. Dalam bahasa pemrograman berorientasi object, ada istilah yang bernama Constructor, yaitu sebuah function
-                   yang digunakan ketika sebuah object dibuat
-                2. Di Go-Lang, biasanya kita juga membuat sebuah function untuk membuat object, dan ini mirip seperti Constructor tugasnya,
-                   yaitu membuat object baru
-                3. Biasanya kita akan membuat object dengan memanggil function Constructor tersebut, lalu mengirimkan
-                   dependencies yang dibutuhkan pada function Constructor tersebut
-                4. Cara seperti ini mudah dilakukan ketika kode program aplikasi kita tidak terlalu besar
-                5. Namun saat kode program aplikasi kita semakin besar, akan semakin sulit melakukan hal ini, terutama
-                   kita harus tahu urutan object mana yang harus dibuat terlebih dahulu
-                6. Oleh karena ini, proses Dependency Injection sebenarnya bisa kita permudah dengan memanfaatkan library
+        -- Keuntungan Database Migration
+                1. Oleh karena itu, Database Migration sangat diperlukan
+                2. Database Migration adalah mekanisme untuk melakukan tracking perubahan struktur database, dari mulai
+                   awal dibuat sampai perubahan terakhir yang dilakukan
+                3. Mirip seperti Git, dimana melakukan tracking semua perubahan kode program
+                4. Dengan menggunakan Database Migration, semua tim member bisa melihat perubahan struktur database,
+                   dan bisa dengan mudah menjalankan perubahan tersebut di tiap komputer masing-masing
+                5. Selain itu, dengan adanya Database Migration, kita bisa melakukan review terlebih dahulu,
+                   sebelum menjalankan perubahan di database, jaga-jaga ada perubahan yang salah,
+                   yang bisa berdampak berbahaya ke database
 
-        -- Library Dependency Injection
-                1. Banyak sekali library Dependency Injection yang bisa kita gunakan di Go-Lang, misalnya
-                       https://github.com/google/wire
-                       https://github.com/uber-go/fx
-                       https://github.com/golobby/container
-                       Dan lain-lain
+-- Pengenalan Golang Migrate
+        1. Golang Migrate adalah salah satu tool untuk Database Migration yang populer digunakan oleh programmer Golang
+        2. Golang Migrate bisa diintegrasikan dengan aplikasi, atau dijalankan sebagai aplikasi standalone
+        3. Golang Migrate mendukung banyak sekali database, seperti MySQL, PostgreSQL, Sqlite, MongoDB, Cassandra, dan lain-lain
+        4. https://github.com/golang-migrate/migrate
 
-                -- Google Wire
-                        1. Pada kelas ini, kita akan menggunakan Google Wire sebagai Dependency Injection library nya
-                        2. Salah satu kenapa Google Wire menjadi pilihan, karena saat ini Google Wire adalah library
-                           paling populer untuk melakukan Dependency Injection di Go-Lang
-                        3. Selain itu, Google Wire merupakan library Dependency Injection yang berbasis compile,
-                           artinya kodenya akan di generate, bukan menggunakan reflection
-                        4. Hal ini membuat Google Wire menjadi cepat, karena hasil kompilasi nya adalah kode yang sudah
-                           di generate melakukan Dependency Injection, tanpa perlu menggunakan reflection lagi
-                        5. Tambah Dependency Google Wire
-                                go get github.com/google/wire
+        --Menginstall Golang Migrate
+                1. Untuk menginstall Golang Migrate, sangat mudah, kita bisa gunakan perintah berikut :
+                        go install -tags ‘database1,database2’ github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+                2. Sesuaikan dengan database yang ingin kita gunakan, bisa lebih dari satu dengan cara menambahkan koma
 
-        -- Menginstall Wire
-                1. Google Wire membutuhkan aplikasi command line wire untuk melakukan auto generate kode Dependency
-                   injection ketika kita nanti membuat kode
-                2. Program ini perlu kita install manual di komputer kita dengan perintah :
-                        go install github.com/google/wire/cmd/wire@latest
-                3. Secara otomatis akan ada file binary di $GOPATH/bin/wire
-                4. Agar aplikasi command line wire tersebut bisa diakses, jangan lupa masukkan ke $PATH sistem operasi kita,
-                   seperti yang pernah kita lakukan ketika belajar setting $PATH Go-Lang di kelas Go-Lang Dasar
+        -- Aplikasi migrate
+                1. Saat menginstall Golang Migrate, secara otomatis terdapat executable file di folder $GOPATH/bin/ dengan nama migrate
+                2. File migrate tersebut adalah aplikasi Golang Migrate yang akan kita gunakan untuk membuat Database Migration
 
--- Provider
-        1. Untuk melakukan Dependency Injection, kita perlu buat dalam bentuk function constructor
-        2. Dalam Google Wire, function constructor tersebut kita sebut dengan Provider
+-- Membuat Database Migration
+        1. Untuk membuat database migration, kita bisa gunakan perintah :
+                migrate create -ext sql -dir db/migrations nama_file_migration
+                       -ext adalah file extension, artinya kita membuat file .sql
+                       -dir adalah folder tempat disimpan
+        2. Usahakan tidak menggunakan spasi pada nama file migration
 
--- Injector
-        1. Setelah kita membuat Provider untuk nanti kita gunakan, selanjutnya kita perlu membuat Injector
-        2. Injector sendiri adalah sebuah function constructor, namun isinya berupa konfigurasi yang kita beritahukan
-           ke Google Wire
-        3. Injector ini sendiri sebenarnya tidak akan digunakan oleh kode program kita, Injector ini adalah function
-           yang akan digunakan oleh Google Wire untuk melakukan auto generate kode Dependency Injection
-        4. Khusus ketika membuat Injector, pada file nya kita perlu tambahkan komentar penanda :
-                    go:build wireinject
-                    +build wireinject
+        -- File Migration
+                1. File migration akan diawali dengan waktu ketika kita membuat file migration, lalu diikuti dengan nama migration,
+                   dan diakhiri dengan tipe migration misal 20220921103313_create_table_category.up.sql
+                3. Kenapa diawali dengan waktu? Agar file migration selalu berurut sesuai waktu kita membuat file migration tersebut
 
--- Dependency Injection
-        1. Setelah kita membuat Injector dan Provider, selanjutnya yang perlu kita lakukan adalah menggunakan aplikasi
-           command line Google Wire untuk melakukan auto generate kode Dependency Injection
-        2. Kita bisa menggunakan perintah ini untuk melakukan auto generate kode dependency injection :
-                wire gen namapackage
-        3. Secara otomatis aplikasi Google Wire akan mencari kode Injector di package tersebut, lalu membuat
-           file wire_gen.go yang isinya adalah kode otomatis dependency injection
+-- Migration Up
+        1. Saat kita membuat file database migration, file dengan akhiran up adalah file yang harus kita isi dengan perubahan yang ingin kita tambahkan
+        2. Misal, sekarang kita akan tambahkan table category, sesuai dengan aplikasi RESTful API yang sudah kita buat
 
--- Error
-        1. Google Wire juga bisa mendeteksi jika terjadi error pada Provider kita
-        2. Jika terdapat error, secara otomatis akan mengembalikan error ketika kita melakukan dependency injection
-        3. Caranya sederhana, kita cukup buat di Provider return value kedua berupa error, dan di Injector nya juga perlu
-           kita tambahkan return value kedua berupa error
+-- Migration Down
+        1. Setiap file migration, selain file up, terdapat juga file down
+        2. File down ini adalah file yang berisikan kode untuk mengembalikan perubahan yang kita lakukan di file up
+        3. Kenapa ini diperlukan? Karena misal terjadi masalah di aplikasi, namun database migration terlanjur dijalankan,
+           kita bisa melakukan rollback dengan cara menjalankan file down, karena berisikan kode untuk mengembalikan perubahan di file up
+        4. Pada kasus ini, misal kita akan menghapus lagi table category
 
--- Injector Parameter
-        1. Saat membuat Injector, kadang kita butuh parameter yang dinamis
-        2. Dengan Google Wire, kita juga bisa mengirim parameter pada Injector yang akan di generate secara otomatis
-        3. Secara otomatis jika ada Provider yang membutuhkan data dengan tipe parameter yang sama, secara otomatis data
-           di parameter akan digunakan
+-- Membuat Database
+        1. Sebelum menjalankan Database Migration, sekarang kita perlu membuat dulu database nya
+        2. Hal ini karena pembuatan database tidak dilakukan di database migration, biasanya dilakukan manual diawal
+        3. Pada kasus ini, kita menggunakan database mysql, dan kita perlu ubah juga kode koneksi database di aplikasi
+           agar terhubung dengan database baru
 
--- Multiple Binding
-        1. Saat melakukan dependency injection, kadang ada kasus kita membuat beberapa Provider dengan tipe yang sama
-        2. Hal ini akan membuat error proses auto generate kode dependency injection, karena Google Wire tidak mendukung
-           multiple binding dengan tipe yang sama
-        3. Pada kasus ini, kita bisa membuat tipe alias untuk multiple binding
+-- Menjalankan Migration
+        1. Selanjutnya, setelah selesai, kita bisa menjalan database migration menggunakan perintah :
+            migrate -database "koneksidatabase" -path folder up angka
+                -database harus berisikan koneksi database,
+                    misal untuk mysql, bisa menggunakan : mysql://user:password@tcp(host:port)/nama_database
+                    Untuk database lainnya, bisa lihat di halaman dokumentasinya : https://github.com/golang-migrate/migrate#databases
+                -path adalah lokasi folder file database migration
+                up adalah perintah untuk menjalankan database migration dengan mode up
+                angka itu adalah nilai angka jumlah migrasi yang ingin dijalankan jika tidak ingin migrasi semua (opsional)
 
--- Provider Set
-        1. Google Wire memiliki fitur yang bernama Provider Set, fitur ini digunakan untuk melakukan grouping Provider
-        2. Provider Set sangat berguna ketika kode program kita sudah banyak, dan Providernya sudah banyak,
-           sehingga akan lebih mudah untuk dibaca ketika kita grouping data Provider nya
+-- Migration State
+        1. Saat kita sudah melakukan migration, lalu kita menambah file migration baru, apa yang terjadi jika kita menjalankan migration lagi?
+        2. Golang Migrate akan menyimpan state terakhir kita menjalankan database migration, artinya tidak akan dijalankan dari awal lagi,
+           melainkan dari file terakhir yang sukses di migrasi
+        3. Jadi kita tidak perlu takut file akan dijalankan lagi, jadi tidak perlu dihapus file migration lama-nya
+        4. Semua informasi state tersebut disimpan dalam table schema_migrations
 
--- Binding Interface
-        1. Dalam pembuatan aplikasi, sering sekali kita biasanya menggunakan Interface sebagai kontrak struct
-        2. Secara default, Google Wire akan menggunakan tipe data asli untuk melakukan dependency injection,
-           jadi jika terdapat parameter berupa Interface, dan tidak ada Provider yang mengembalikan Interface tersebut,
-           maka akan dianggap error
-        3. Pada kasus ini, kita bisa memberi tahu ke Google Wire, jika kita ingin melakukan binding interface,
-           yaitu memberi tahu untuk sebuah interface akan menggunakan provider dengan tipe apa
+-- Rollback Migration
+        1. Pada waktu misal terjadi masalah pada aplikasi, yang menyebabkan kita harus melakukan rollback perubahan, apa yang kita harus lakukan?
+        2. Fitur itu sudah ada di Golang Migrate, jadi kita bisa menjalankan mode down untuk melakukan rollback dengan perintah :
+                    migrate -database "koneksidatabase" -path folder down angka
 
--- Struct Provider
-        1. Kita juga bisa membuat Struct Provider, yaitu Struct yang bisa kita jadikan sebagai Provider
-        2. Secara otomatis Struct yang kita sebutkan akan menjadi Provider
-        3. Dan kita juga bisa melakukan dependency injection terhadap field yang terdapat didalam Struct tersebut,
-           kita cukup menyebutkan field mana yang akan di inject, atau jika ingin melakukan injection ke semua field,
-           kita bisa gunakan karakter * (bintang)
+-- Migrasi ke Versi Tertentu
+        1. Saat menggunakan mode up atau down, secara otomatis akan melakukan migrasi seluruh file
+        2. Kadang pada kenyataanya, kita mungkin hanya ingin melakukan up atau down ke versi tertentu saja
+        3. Misal jika ingin melakukan rollback, mungkin kita hanya ingin rollback satu versi saja, tidak mau melakukan rollback semua versi
+        4. Untuk kasus ini, setelah perintah up atau down, kita bisa memasukkan angka, yaitu jumlah migration yang ingin kita eksekusi
 
--- Binding Values
-        1. Kadang ada kasus dimana kita ingin melakukan dependency injection terhadap value yang sudah ada,
-           tanpa harus membuat Provider terlebih dahulu
-        2. Untuk kasus seperti, kita bisa langsung sebutkan value dari objectnya, tanpa menggunakan Provider
+-- Dirty State
+        1. Saat kita membuat database migration, kadang kesalahan sering terjadi
+        2. Misal saja, kita melakukan typo sehingga membuat perintah SQL nya salah
+        3. Jika kita terlanjur menjalankan database migration, maka state akan berubah menjadi Dirty State
+        4. State gimana kita tidak bisa melakukan up atau down lagi
+        5. Pada kasus ini, kita harus perbaiki manual, kenapa harus manual? Karena tidak ada cara otomatis memperbaikinya
 
-        -- Interface Value
-                1. Seperti di awal sudah dijelaskan, bahkan Google Wire akan melakukan dependency injection sesuai tipe
-                   data Provider nya
-                2. Pada kasus jika kita ingin menggunakan value berupa Interface, maka kita perlu melakukan Interface
-                   Binding seperti yang sudah dibahas
-                3. Atau ada cara yang lebih mudah, kita bisa binding value sekaligus menyebutkan interface yang
-                   digunakan oleh value tersebut
+        -- Permasalahan
+                1. Permasalahan migration ini adalah, kita membuat dua table di file migration,
+                   pada pembuatan table pertama sukses, namun pada table kedua gagal
+                2. Artinya file migration tidak sempurna, dan kita juga tidak bisa melakukan rollback,
+                   karena table kedua belum sukses dibuat
+                3. Pada kondisi ini, terjadi yang namanya Dirty State, dimana kita tidak bisa melakukan up atau down,
+                   yang perlu kita lakukan adalah memperbaiki secara manual
 
--- Struct Field Provider
-        1. Google Wire juga mendukung pembuatan Provider dari Field sebuah Struct
-        2. Misal pada kondisi kita ingin menggunakan sebuah Field dari Struct untuk dijadikan dependency untuk Provider lain
-
--- Cleanup Function
-        1. Jika Provider membuat object yang membutuhkan proses cleanup (pembersihan) setelah object dibuat,
-           maka pada provider kita bisa mengembalikan closure
-        2. Closure secara otomatis akan dipanggil dalam proses cleanup oleh Google Wire
-
-
-
-
-
-
-
-
-
+        -- Mengubah Versi
+                1. Setelah kita memperbaiki secara manual, selanjutnya kita perlu mengubah versi migration di table schema_migrations
+                2. Kita bisa lakukan manual, atau bisa otomatis menggunakan perintah :
+                            migrate -database "koneksi_database" -path folder force versi
+                3. Dimana versi adalah versi dari file database migration
+                4. Pada kasus ini, kita akan gunakan satu versi sebelum migration yang gagal
